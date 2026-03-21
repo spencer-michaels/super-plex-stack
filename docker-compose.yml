@@ -234,18 +234,18 @@ services:
       - 6767:6767
     restart: unless-stopped
 
-cleanuparr:
-    image: ghcr.io/cleanuparr/cleanuparr:latest
-    container_name: cleanuparr
-    network_mode: "service:gluetun"
-    restart: unless-stopped
-    environment:
-      - PORT=11011
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ./config/cleanuparr:/config
+  cleanuparr:
+      image: ghcr.io/cleanuparr/cleanuparr:latest
+      container_name: cleanuparr
+      network_mode: "service:gluetun"
+      restart: unless-stopped
+      environment:
+        - PORT=11011
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+      volumes:
+        - ./config/cleanuparr:/config
 
 networks:
   media-network:
