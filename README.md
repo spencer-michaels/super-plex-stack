@@ -31,7 +31,7 @@ A comprehensive media server setup using Docker Compose, featuring Plex and vari
 - **[Sonarr](https://github.com/linuxserver/docker-sonarr)**: TV series collection manager 
 - **[Prowlarr](https://github.com/linuxserver/docker-prowlarr)**: Indexer manager 
 - **[Bazarr](https://github.com/linuxserver/docker-bazarr)**: Subtitle manager *optional*
-- **[Cleanuperr](https://github.com/flmorg/cleanuperr)**: Download queue management and cleanup tool *optional*
+- **[Cleanuparr](https://github.com/Cleanuparr/Cleanuparr)**: Download queue management and cleanup tool *optional*
 
 > If you don't want to use any of the optional services, you can remove them from the `docker-compose.yml` file.
 
@@ -107,23 +107,6 @@ You'll need to do more configuration in the apps themselves to make sure that ev
 
 The flow I find best is (in order of what to get working first): `Gluetun -> qBittorrent -> Prowlarr -> Sonarr/Radarr -> Plex`. Everything else can come after that. 
 
-#### Cleanuperr Configuration
-
-Cleanuperr is configured to:
-- Clean up stalled and slow downloads
-- Block malicious content using the official blacklist
-- Manage seeding times and ratios
-- Automatically search for replacements when needed
-
-Key features:
-- Queue Cleaner runs every 5 minutes
-- Content Blocker runs every 5 minutes
-- Download Cleaner runs once per hour
-- Maintains logs in `./config/cleanuperr/logs`
-- Uses `./config/cleanuperr/ignored.txt` for ignored downloads
-
-> **Note:** You'll need to create `./config/data/cleanuperr/ignored.txt` for Cleanuperr to work. 
-
 Required environment variables:
 - `QBITTORRENT_USERNAME`: qBittorrent username
 - `QBITTORRENT_PASSWORD`: qBittorrent password
@@ -146,7 +129,7 @@ Required environment variables:
 | Prowlarr | [9696](http://localhost:9696) | VPN Protected |
 | Bazarr | [6767](http://localhost:6767) | |
 | Dozzle | [9999](http://localhost:9999) | |
-| Cleanuperr | CLI only | |
+| Cleanuparr | [11011](http://localhost:11011) | |
 
 > 🔐 Services marked as "VPN Protected" run through the Gluetun VPN container, meaning:
 > - All their network traffic is routed through your VPN connection
