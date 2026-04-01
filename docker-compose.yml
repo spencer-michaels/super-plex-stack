@@ -17,78 +17,77 @@ services:
       - ${DATA_ROOT}:/data
     restart: unless-stopped
 
-  overseerr:
-    image: sctx/overseerr:latest
-    container_name: overseerr
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
     network_mode: "service:gluetun"
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - UMASK=${UMASK}
       - LOG_LEVEL=debug
       - TZ=${TZ}
       - PORT=5055
-      - URL_BASE=/overseerr
     volumes:
       - ./config/overseerr:/app/config
     restart: unless-stopped
 
-  tautulli:
-    image: lscr.io/linuxserver/tautulli:latest
-    container_name: tautulli
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - URL_BASE=/tautulli
-    volumes:
-      - ./config/tautulli:/config
-    networks:
-      - media-network
-    ports:
-      - 8181:8181
-    restart: unless-stopped
+#  tautulli:
+#    image: lscr.io/linuxserver/tautulli:latest
+#    container_name: tautulli
+#    environment:
+#      - PUID=${PUID}
+#      - PGID=${PGID}
+#      - TZ=${TZ}
+#      - URL_BASE=/tautulli
+#    volumes:
+#      - ./config/tautulli:/config
+#    networks:
+#      - media-network
+#    ports:
+#      - 8181:8181
+#    restart: unless-stopped
 
-  organizr:
-    image: organizr/organizr
-    container_name: organizr
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ./config/organizr:/config
-    ports:
-      - 9983:80
-    restart: unless-stopped
+#  organizr:
+#    image: organizr/organizr
+#    container_name: organizr
+#    environment:
+#      - PUID=${PUID}
+#      - PGID=${PGID}
+#      - TZ=${TZ}
+#    volumes:
+#      - ./config/organizr:/config
+#    ports:
+#      - 9983:80
+#    restart: unless-stopped
 
-  filebrowser:
-    image: hurlenko/filebrowser:latest
-    user: "1000:1000"
-    container_name: filebrowser
-    volumes:
-      - ./config/filebrowser:/config
-      - ${DATA_ROOT}:/data
-    ports:
-      - 8081:8081
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - FB_LOG_LEVEL=debug
-      - FB_LOG_FILE=/config/filebrowser.log
-    restart: always
-    networks:
-      - media-network
+#  filebrowser:
+#    image: hurlenko/filebrowser:latest
+#    user: "1000:1000"
+#    container_name: filebrowser
+#    volumes:
+#      - ./config/filebrowser:/config
+#      - ${DATA_ROOT}:/data
+#    ports:
+#      - 8081:8081
+#    environment:
+#      - PUID=${PUID}
+#      - PGID=${PGID}
+#      - TZ=${TZ}
+#      - FB_LOG_LEVEL=debug
+#      - FB_LOG_FILE=/config/filebrowser.log
+#    restart: always
+#    networks:
+#      - media-network
 
   dozzle:
     image: amir20/dozzle:latest
     container_name: dozzle
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-      - 9999:8080
     restart: unless-stopped
+    ports:
+      - 127.0.0.1:9999:8080
+    networks:
+      - media-network
 
 # Networking
   nginx-proxy-manager:
@@ -97,7 +96,7 @@ services:
     restart: unless-stopped
     ports:
       - '80:80'
-      - '81:81'
+      - '127.0.0.1:81:81'
       - '443:443'
     environment:
       - TZ=${TZ}
@@ -134,21 +133,23 @@ services:
       - /dev/net/tun:/dev/net/tun
     ports:
       # VPN HTTP control server
-      - 8000:8000
-      # Overseerr
-      - 5055:5055
+      - 127.0.0.1:8000:8000
+      # Seerr
+      - 127.0.0.1:5055:5055
       # Radarr
-      - 7878:7878
+      - 127.0.0.1:7878:7878
       # Sonarr
-      - 8989:8989
+      - 127.0.0.1:8989:8989
       # Prowlarr
-      - 9696:9696
+      - 127.0.0.1:9696:9696
       # qBittorrent
-      - 8080:8080
+      - 127.0.0.1:8080:8080
       - 6881:6881
       - 6881:6881/udp
       # Readarr
-      - 8787:8787
+      - 127.0.0.1:8787:8787
+      # Cleanuparr
+      - 127.0.0.1:11011:11011
     environment:
       ###! These settings will vary with your VPN provider. Check the Gluetun documentation (https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers) for more information. !###
       - PUID=${PUID}
@@ -166,11 +167,12 @@ services:
     networks:
       media-network:
         aliases:
-          - overseerr
+          - seerr
           - radarr
           - sonarr
           - prowlarr
           - qbittorrent
+          - cleanuparr
       vpn:
         aliases:
           - gluetun
@@ -226,13 +228,15 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+    ports:
+      - 127.0.0.1:6767:6767
     volumes:
       - ./config/bazarr:/config
       - ${DATA_ROOT}/movies:/movies
       - ${DATA_ROOT}/tv:/tv
-    ports:
-      - 6767:6767
     restart: unless-stopped
+    networks:
+      - media-network
 
   cleanuparr:
       image: ghcr.io/cleanuparr/cleanuparr:latest

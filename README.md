@@ -15,10 +15,10 @@ A comprehensive media server setup using Docker Compose, featuring Plex and vari
 
 ### Core Services
 - **[Plex](https://github.com/linuxserver/docker-plex/)**: Media server 
-- **[Overseerr](https://github.com/linuxserver/docker-overseerr)**: Media request management system 
-- **[Tautulli](https://github.com/linuxserver/docker-tautulli)**: Plex monitoring and statistics  *optional*
-- **[Organizr](https://github.com/causefx/Organizr)**: Web-based dashboard  *optional*
-- **[FileBrowser](https://github.com/filebrowser/filebrowser)**: Web file management interface  *optional*
+- **[Seerr](https://github.com/seerr-team/seerr)**: Media request management system 
+- **[Tautulli](https://github.com/linuxserver/docker-tautulli)**: Plex monitoring and statistics  *optional, commented out by default*
+- **[Organizr](https://github.com/causefx/Organizr)**: Web-based dashboard  *optional, commented out by default*
+- **[FileBrowser](https://github.com/filebrowser/filebrowser)**: Web file management interface  *optional, commented out by default*
 - **[Dozzle](https://github.com/amir20/dozzle)**: Real-time docker log viewer *optional*
 
 ### Web & Network Services
@@ -33,7 +33,7 @@ A comprehensive media server setup using Docker Compose, featuring Plex and vari
 - **[Bazarr](https://github.com/linuxserver/docker-bazarr)**: Subtitle manager *optional*
 - **[Cleanuparr](https://github.com/Cleanuparr/Cleanuparr)**: Download queue management and cleanup tool *optional*
 
-> If you don't want to use any of the optional services, you can remove them from the `docker-compose.yml` file.
+> If you don't want to use any of the optional services, you can comment them out or remove them from the `docker-compose.yml` file.
 
 > :warning: **Warning:** This stack will not work out of the box. You'll need to do more configuration in the apps themselves. See the App Setup section below for more information. 
 
@@ -66,7 +66,7 @@ Make sure you have [Docker](https://www.docker.com/) installed! These instructio
    - `PGID`: Group ID (default: 1000)
    - `OPENVPN_USERNAME`: VPN username
    - `OPENVPN_PASSWORD`: VPN password
-   - `DATA_ROOT`: Path to your data directory (default puts the data in the same directory as the `docker-compose.yml` file —  `./data`)
+   - `DATA_ROOT`: Path to your data directory (default puts the data in the same directory as the `docker-compose.yml` file —  `./data`)
    And, if you're using Cleanuparr: 
    - `SONARR_API_KEY`: Sonarr API key (from settings)
    - `RADARR_API_KEY`: Radarr API key (from settings)
@@ -76,15 +76,15 @@ Make sure you have [Docker](https://www.docker.com/) installed! These instructio
 > The stack uses Gluetun for VPN connectivity, which I have preconfigured for ProtonVPN but supports many other providers. You can see the full list of providers and the documentation for how to configure them [here](https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers). 
 
 5. Run `docker compose up -d` to start the stack.
-6. Profit! After setting up the apps, of course. Add media via Overseerr (or by manually adding them to Radarr and Sonarr). See the App Setup section for more information, and use documentation for each app to finish setting them up.
+6. Profit! After setting up the apps, of course. Add media via Seerr (or by manually adding them to Radarr and Sonarr). See the App Setup section for more information, and use documentation for each app to finish setting them up.
 
 ### 🌐 Ngnix
 
 > **Note:** This is optional, and only if you want to be able to access the services from outside your local network. You'll need a static IP and forward the necessary ngnix ports. 
 
-1. Create an A record in your DNS provider pointing to your server's public IP address, with `overseerr` as the name.
+1. Create an A record in your DNS provider pointing to your server's public IP address, with `seerr` as the name.
 2. In Ngnix, go to Hosts -> Proxy Hosts -> Add Proxy Host. Fill in the following: 
-   1. Domain Names: `overseerr.mydomain.com`
+   1. Domain Names: `seerr.mydomain.com`
    2. Scheme: `http`
    3. Forward Hostname/IP: `gluetun` (for VPN-protected services) or service name (for others)
    4. Forward Port: `5055` (use the service's port)
@@ -92,7 +92,7 @@ Make sure you have [Docker](https://www.docker.com/) installed! These instructio
    6. Under SSL, select `Request New SSL Certificate`, `Force SSL`, and `HTTP/2 Support`.
 3. **Be sure to secure any services you forward outside your network!** 
 
-> **Important:** For services running through the VPN (Overseerr, Radarr, Sonarr, Prowlarr), use `gluetun` as the Forward Hostname/IP in Nginx Proxy Manager. These services are accessed through the gluetun container.
+> **Important:** For services running through the VPN (Seerr, Radarr, Sonarr, Prowlarr), use `gluetun` as the Forward Hostname/IP in Nginx Proxy Manager. These services are accessed through the gluetun container.
 
 ### 🛠️ App Setup
 
@@ -117,25 +117,23 @@ Required environment variables:
 
 | Service | URL | Notes |
 |---------|-----|-------|
-| Nginx Proxy Manager | [81](http://localhost:81) | Admin interface |
-| Organizr | [9983](http://localhost:9983) | |
-| Filebrowser | [8081](http://localhost:8081) | |
-| qBittorrent | [8080](http://localhost:8080) | VPN Protected |
-| Radarr | [7878](http://localhost:7878) | VPN Protected |
-| Sonarr | [8989](http://localhost:8989) | VPN Protected |
+| Nginx Proxy Manager | [81](http://localhost:81) | Admin interface (localhost only) |
+| qBittorrent | [8080](http://localhost:8080) | VPN Protected (localhost only) |
+| Radarr | [7878](http://localhost:7878) | VPN Protected (localhost only) |
+| Sonarr | [8989](http://localhost:8989) | VPN Protected (localhost only) |
 | Plex | [32400](http://localhost:32400/web) | Host Network Mode |
-| Overseerr | [5055](http://localhost:5055) | VPN Protected |
-| Tautulli | [8181](http://localhost:8181) | |
-| Prowlarr | [9696](http://localhost:9696) | VPN Protected |
-| Bazarr | [6767](http://localhost:6767) | |
-| Dozzle | [9999](http://localhost:9999) | |
-| Cleanuparr | [11011](http://localhost:11011) | |
+| Seerr | [5055](http://localhost:5055) | VPN Protected (localhost only) |
+| Prowlarr | [9696](http://localhost:9696) | VPN Protected (localhost only) |
+| Bazarr | [6767](http://localhost:6767) | localhost only |
+| Dozzle | [9999](http://localhost:9999) | localhost only |
+| Cleanuparr | [11011](http://localhost:11011) | VPN Protected (localhost only) |
 
-> 🔐 Services marked as "VPN Protected" run through the Gluetun VPN container, meaning:
+> 🔐 Most services are bound to `127.0.0.1` (localhost only) for security. They are only accessible from the host machine directly. To expose them externally, set up a reverse proxy in Nginx Proxy Manager (see the section above).
+>
+> Services marked as "VPN Protected" run through the Gluetun VPN container, meaning:
 > - All their network traffic is routed through your VPN connection
 > - They're only accessible through ports exposed by the Gluetun container
 > - This protects these services from being directly exposed to the internet (aka they run through the VPN)
-> - All of these can be accessed via localhost, but you'll need to set up a reverse proxy in Nginx Proxy Manager to access them from outside your network (see the section above).
 
 ## ✅ TODO
 
